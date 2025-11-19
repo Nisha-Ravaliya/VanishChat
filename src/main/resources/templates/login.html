@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VanishChat - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* ===== Body & Reset ===== */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #262D7A;
+            color: #eee;
+        }
+        a { text-decoration: none; color: #00ffaa; }
+
+        /* ===== Header / Navbar ===== */
+        header {
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding:  20px;
+        }
+        .logo { font-size: 1.8rem; font-weight: bold; }
+        nav ul { list-style: none; display: flex; gap: 20px; margin:0; padding:0; }
+        nav ul li a { color: white; font-weight: 500; }
+
+        /* ===== Login Container ===== */
+        .login-container {
+            background-color: rgba(0,0,0,0.75);
+            padding: 40px 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            margin: 60px auto;
+            box-shadow: 0 0 15px rgba(0,255,170,0.2);
+        }
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00ffaa;
+        }
+        label { display: block; margin-bottom: 8px; font-weight: 500; }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #2e2e2e;
+            color: white;
+        }
+        input:focus { outline: 2px solid #00ffaa; }
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #00ffaa, #00cc88);
+            color: #111;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover { background: linear-gradient(135deg, #00cc88, #00ffaa); }
+        .note { margin-top: 20px; text-align: center; font-size: 0.9rem; color: #ccc; }
+        .note a { color: #00ffaa; }
+        .note a:hover { text-decoration: underline; }
+        .message { text-align: center; margin-top: 15px; font-size: 0.95rem; }
+        .message.error { color: #ff5e5e; }
+        .message.success { color: #00ffaa; }
+
+        /* ===== Footer ===== */
+        footer.modern-footer {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 40px 20px;
+            margin-top: 40px;
+        }
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .footer-logo { font-size: 1.5rem; font-weight: bold; }
+        .footer-right ul { list-style: none; padding: 0; }
+        .footer-right ul li { margin: 10px 0; }
+        .footer-right ul li a { color: white; }
+
+        /* ===== Animations ===== */
+        .fade-in { opacity: 0; animation: fadeIn 1s ease-in forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav fade-in">
+        <div class="logo">🕵️‍♂️ VanishChat</div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/Privacy">Privacy</a></li>
+                <li><a href="/verify">Verify</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/login">Login</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<div class="login-container fade-in">
+    <h2>Login to VanishChat</h2>
+    <form id="loginForm">
+        <label for="usernameOrEmail">Email or Username</label>
+        <input type="text" id="usernameOrEmail" required placeholder="Enter email or username" />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" required placeholder="Enter your password" />
+
+        <button type="submit">Login</button>
+    </form>
+
+    <div class="message" id="responseMessage"></div>
+    <div class="note">Don't have an account? <a href="/register">Register here</a></div>
+</div>
+
+<footer class="modern-footer fade-in">
+    <div class="footer-grid">
+        <div class="footer-left">
+            <div class="footer-logo">🕵️‍♂️ VanishChat</div>
+            <p>&copy; 2025 VanishChat</p>
+        </div>
+        <div><p>Register Office: M68Q+HVM, Rawtara, West Bengal 741137</p>
+            <p>Phone: +91 892-704-3805</p>
+            <p>Email: <a href="mailto:info@VanishChat.com">info@VanishChat.com</a></p></div>
+        <div class="footer-right">
+            <h4>Links</h4>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/Privacy">Privacy</a></li>
+                <li><a href="/chat">Chat</a></li>
+                <li><a href="/registration">Register</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fadeElems = document.querySelectorAll('.fade-in');
+        fadeElems.forEach(el => el.style.opacity = '1');
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const usernameOrEmail = document.getElementById('usernameOrEmail').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const messageBox = document.getElementById('responseMessage');
+
+        messageBox.textContent = '';
+        messageBox.classList.remove('error','success');
+
+        if (!usernameOrEmail || !password) {
+            messageBox.textContent = "Please fill in both fields.";
+            messageBox.classList.add('error');
+            return;
+        }
+
+        try {
+            const res = await fetch("http://localhost:8080/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ usernameOrEmail, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.token) {
+                localStorage.setItem("token", data.token);
+                messageBox.textContent = "Login successful. Redirecting...";
+                messageBox.classList.add("success");
+                setTimeout(() => { window.location.href = "/dashboard"; }, 1000);
+            } else {
+                messageBox.textContent = data.message || "Invalid credentials";
+                messageBox.classList.add("error");
+            }
+
+        } catch(err) {
+            console.error(err);
+            messageBox.textContent = "Server error. Try again.";
+            messageBox.classList.add("error");
+        }
+    });
+</script>
+
+</body>
+</html>

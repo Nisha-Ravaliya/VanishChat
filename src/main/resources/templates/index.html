@@ -1,0 +1,345 @@
+<!-- File: src/main/resources/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>VanishChat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--  Embedded CSS -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            font-weight: 500;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #e65c50;
+        }
+
+        .chat-section {
+            background-color: white;
+            padding: 60px 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .chat-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .chat-section .subtitle {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #666;
+        }
+
+        .chat-box {
+            background-color: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            height: 250px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .chat-box p {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 5px;
+            max-width: 70%;
+        }
+
+        .chat-box .empty-msg {
+            color: #888;
+            font-style: italic;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+
+        footer.modern-footer {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 40px 20px;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .footer-right ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-right ul li {
+            margin: 10px 0;
+        }
+
+        .footer-right ul li a {
+            color: white;
+        }
+
+        .message-bubble {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            animation: fadeIn 0.3s ease-in-out;
+            font-size: 0.95rem;
+        }
+
+        .dot-loader {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #0c5460;
+            animation: blink 1s infinite ease-in-out;
+            margin-left: 15px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<header>
+    <div class="container nav">
+        <div class="logo">🕵️‍♂️ VanishChat</div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/Privacy">Privacy</a></li>
+                <li><a href="/verify">Verify</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/login">Login</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!--  Hero -->
+<section class="hero">
+    <div class="container">
+        <h1>Welcome to VanishChat</h1>
+        <p>Anonymous & secure business messaging. Auto-delete messages after reading.</p>
+        <a href="/verify" class="btn">Start Now</a>
+    </div>
+</section>
+
+<!-- Chat Box Preview -->
+<section class="chat-section">
+    <div class="container">
+        <h2>💬 Try a Demo Message</h2>
+        <p class="subtitle">Type and send a message. It'll disappear after <strong>10 seconds</strong>.</p>
+
+        <div class="chat-box" id="chat-box">
+            <p class="empty-msg">No messages yet. Start the conversation!</p>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</section>
+
+
+<!--  Footer -->
+<footer class="modern-footer">
+    <div class="container footer-grid">
+        <div class="footer-left">
+            <div class="footer-logo">🕵️‍♂️ VanishChat</div>
+            <p>Secure & Temporary Messaging Platform for Verified Businesses.</p>
+            <p>&copy; 2025 VanishChat. All rights reserved.</p>
+
+        </div>
+        <div><p>Register Office: M68Q+HVM, Rawtara, West Bengal 741137</p>
+            <p>Phone: +91 892-704-3805</p>
+            <p>Email: <a href="mailto:info@standsweb.com">info@VanishChat.com</a></p></div>
+
+        <div class="footer-right">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/Privacy">Privacy</a></li>
+                <li><a href="/verify">Verify</a></li>
+                <li><a href="/Register">Chat</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/login">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
+
+<!--  JavaScript -->
+<script>
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        const chatBox = document.getElementById('chat-box');
+
+        if (message === '') return;
+
+        const emptyMsg = chatBox.querySelector('.empty-msg');
+        if (emptyMsg) chatBox.removeChild(emptyMsg);
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.innerHTML = `
+            <span>${message}</span>
+            <span class="dot-loader" title="This message will vanish in 10 seconds..."></span>
+        `;
+        chatBox.appendChild(bubble);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        input.value = '';
+
+        setTimeout(() => {
+            bubble.classList.add('fade-out');
+            setTimeout(() => {
+                bubble.remove();
+                if (chatBox.children.length === 0) {
+                    const empty = document.createElement('p');
+                    empty.className = 'empty-msg';
+                    empty.textContent = 'No messages yet. Start the conversation!';
+                    chatBox.appendChild(empty);
+                }
+            }, 500);
+        }, 10000);
+    }
+
+    document.getElementById('messageInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+
+</body>
+</html>

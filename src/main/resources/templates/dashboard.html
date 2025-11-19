@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — VanishChat</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        aside.sidebar {
+            width: 240px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: fixed;
+            top: 60px; /* below topbar */
+            bottom: 0;
+        }
+        aside.sidebar h2 { text-align: center; margin-bottom: 20px; }
+        aside.sidebar nav { flex-grow: 1; }
+        aside.sidebar nav a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+        aside.sidebar nav a:hover, aside.sidebar nav a.active { background: #1abc9c; color: #2c3e50; }
+        aside.sidebar button.logoutBtn{
+            margin-top: auto;
+            padding: 10px;
+            border:none;
+            border-radius:6px;
+            background:#e74c3c;
+            color:white;
+            cursor:pointer;
+        }
+        aside.sidebar button.logoutBtn:hover{background:#c0392b;}
+
+        /* Topbar */
+        header.topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        header.topbar .search-container {
+            flex:4;
+            margin-left: 0px;
+        }
+        header.topbar .search-container input{
+            width: 100%;
+            padding:8px 12px;
+            border-radius:6px;
+            border:1px solid #bbb;
+        }
+        header.topbar .user-info{
+            display:flex; align-items:center; gap:10px;
+        }
+        header.topbar .user-info img{
+            width:40px; height:40px; border-radius:50%; object-fit:cover;
+        }
+        header.topbar .bell{
+            position:relative; margin-right:20px; cursor:pointer;
+        }
+        header.topbar .bell span{
+            position:absolute; top:-5px; right:-5px; background:red; color:white; font-size:12px; padding:2px 6px; border-radius:50%;
+        }
+        header.topbar .notifications{
+            position:absolute; right:0; top:45px; background:white; width:250px; max-height:300px; overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,0.2); display:none; border-radius:8px; z-index:20;
+        }
+        header.topbar .notifications p{ padding:10px; border-bottom:1px solid #eee;}
+
+        /* Main content */
+        main.content {
+            margin-left: 240px;
+            margin-top: 60px; /* topbar height */
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+        }
+        section { display: none; }
+        .cards { display: flex; gap: 20px; flex-wrap: wrap; margin-top:20px;}
+        .card {
+            background: #ecf0f1;
+            flex: 1 1 250px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+        .card h3 { margin-bottom: 10px; color: #34495e; }
+        .card select { margin-top:10px; padding:6px; border-radius:5px; }
+
+        /* Input Fields */
+        input, textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #bbb; margin-bottom: 10px; }
+        button.saveBtn { padding: 10px 15px; background:#1abc9c; color:white; border:none; border-radius:6px; cursor:pointer; }
+        img.profile-pic{width:100px; height:100px; border-radius:50%; margin-bottom:10px; object-fit:cover;}
+
+        /* Chat */
+        .chat-card{ background:#ecf0f1; padding:15px; border-radius:8px; max-height:400px; overflow-y:auto; margin-bottom:10px;}
+        .chat-input{ display:flex; gap:10px; margin-top:10px;}
+        .chat-input input{ flex:1; padding:8px; border-radius:6px; border:1px solid #bbb;}
+        .chat-input button{ padding:8px 15px; border:none; border-radius:6px; background:#1abc9c; color:white; cursor:pointer;}
+        .chat-message{ margin-bottom:10px; padding:8px 10px; border-radius:6px; background:#fff; border:1px solid #ccc;}
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <h2>VanishChat</h2>
+    <nav>
+        <a href="#" class="active" onclick="showPage('dashboard',event)">🏠 Dashboard</a>
+        <a href="#" onclick="showPage('chat',event)">💬 Chat</a>
+        <a href="#" onclick="showPage('profile',event)">👤 Profile</a>
+        <a href="#" onclick="showPage('editProfile',event)">✏️ Edit Profile</a>
+        <a href="#" onclick="showPage('settings',event)">⚙️ Settings</a>
+    </nav>
+    <button class="logoutBtn" onclick="logout()">Logout</button>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search...">
+    </div>
+    <div class="bell" onclick="toggleNotifications()">
+        🔔<span id="notificationCount">0</span>
+        <div class="notifications" id="notificationList">
+            <p>No new notifications</p>
+        </div>
+    </div>
+    <div class="user-info">
+        <img src="https://via.placeholder.com/40" id="topProfilePic">
+        <span id="topUserName">User</span>
+    </div>
+</header>
+
+<main class="content">
+
+    <!-- Dashboard -->
+    <section id="dashboard">
+        <h1>Dashboard</h1>
+        <div>
+            <label>Filter Period:</label>
+            <select id="timePeriodFilter">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+        <div class="cards">
+            <div class="card">
+                <h3>Your Details</h3>
+                <p><strong>Name:</strong> <span id="userNameDisplay">Loading...</span></p>
+                <p><strong>Email:</strong> <span id="userEmailDisplay">Loading...</span></p>
+                <p><strong>Business:</strong> <span id="userBusinessDisplay">Loading...</span></p>
+                <p><strong>Address:</strong> <span id="userAddressDisplay">Loading...</span></p>
+            </div>
+            <div class="card">
+                <h3>Total Chats</h3>
+                <p><span id="totalChats">0</span></p>
+            </div>
+            <div class="card">
+                <h3>Sent Chats</h3>
+                <p><span id="sentChats">0</span></p>
+            </div>
+            <div class="card">
+                <h3>Pending Chats</h3>
+                <p><span id="pendingChats">0</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat -->
+    <section id="chat">
+        <h1>Chat</h1>
+        <div>
+            <label>Filter Period:</label>
+            <select id="chatTimePeriod">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+        <div class="chat-card" id="chatContainer"></div>
+        <div class="chat-input">
+            <input type="email" id="chatEmail" placeholder="Recipient Email">
+            <input type="text" id="chatMessage" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </section>
+
+    <!-- Profile -->
+    <section id="profile">
+        <h1>Profile</h1>
+        <div class="card">
+            <img src="https://via.placeholder.com/100" id="profilePic" class="profile-pic" alt="Profile Picture">
+            <label>Upload Picture</label>
+            <input type="file" id="profilePicInput" onchange="previewProfilePic(event)">
+            <p><strong>Name:</strong> <span id="profileName">Loading...</span></p>
+            <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
+            <p><strong>Business:</strong> <span id="profileBusiness">Loading...</span></p>
+            <p><strong>Address:</strong> <span id="profileAddress">Loading...</span></p>
+        </div>
+    </section>
+
+    <!-- Edit Profile -->
+    <section id="editProfile">
+        <h1>Edit Profile</h1>
+        <div class="card">
+            <label>Name</label>
+            <input id="editName">
+            <label>Email</label>
+            <input id="editEmail">
+            <label>Business Name</label>
+            <input id="editBusiness">
+            <label>Address</label>
+            <textarea id="editAddress"></textarea>
+            <button class="saveBtn" onclick="saveProfile()">Save Changes</button>
+        </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="settings">
+        <h1>Settings</h1>
+        <div class="card">
+            <p>Settings options coming soon...</p>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // Default section
+    document.getElementById("dashboard").style.display="block";
+
+    // Page switch
+    function showPage(page,event){
+        event.preventDefault();
+        document.querySelectorAll("section").forEach(sec=>sec.style.display="none");
+        document.getElementById(page).style.display="block";
+        document.querySelectorAll(".sidebar nav a").forEach(a=>a.classList.remove("active"));
+        event.target.classList.add("active");
+    }
+
+    // Notifications toggle
+    function toggleNotifications(){
+        const el = document.getElementById("notificationList");
+        el.style.display = el.style.display==="block"?"none":"block";
+    }
+
+    // Profile picture preview
+    function previewProfilePic(event){
+        const reader = new FileReader();
+        reader.onload = function(){
+            document.getElementById("profilePic").src = reader.result;
+            document.getElementById("topProfilePic").src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // Mock: Load logged-in user data
+    document.addEventListener("DOMContentLoaded",()=>{
+        // Replace this object with actual logged-in user data
+        const userData = {
+            name:"John Doe",
+            email:"john@example.com",
+            businessName:"My Business",
+            address:"123 Street",
+            totalChats:25,
+            sentChats:18,
+            pendingChats:7,
+            profilePic:"https://via.placeholder.com/100"
+        };
+
+        // Topbar
+        document.getElementById("topUserName").textContent = userData.name;
+        document.getElementById("topProfilePic").src = userData.profilePic;
+
+        // Dashboard
+        document.getElementById("userNameDisplay").textContent = userData.name;
+        document.getElementById("userEmailDisplay").textContent = userData.email;
+        document.getElementById("userBusinessDisplay").textContent = userData.businessName;
+        document.getElementById("userAddressDisplay").textContent = userData.address;
+        document.getElementById("totalChats").textContent = userData.totalChats;
+        document.getElementById("sentChats").textContent = userData.sentChats;
+        document.getElementById("pendingChats").textContent = userData.pendingChats;
+
+        // Profile
+        document.getElementById("profileName").textContent = userData.name;
+        document.getElementById("profileEmail").textContent = userData.email;
+        document.getElementById("profileBusiness").textContent = userData.businessName;
+        document.getElementById("profileAddress").textContent = userData.address;
+        document.getElementById("profilePic").src = userData.profilePic;
+
+        // Edit
+        document.getElementById("editName").value = userData.name;
+        document.getElementById("editEmail").value = userData.email;
+        document.getElementById("editBusiness").value = userData.businessName;
+        document.getElementById("editAddress").value = userData.address;
+    });
+
+    // Logout
+    function logout(){
+        localStorage.removeItem("token");
+        window.location.href="/login";
+    }
+
+    // Save profile (mock)
+    function saveProfile(){
+        alert("Profile saved (mock)!");
+    }
+
+    // Chat functionality
+    let chatMessages = [];
+    function sendMessage(){
+        const email = document.getElementById("chatEmail").value;
+        const msg = document.getElementById("chatMessage").value;
+        if(!email || !msg) return alert("Fill email and message!");
+        const messageObj = {to:email, message:msg, time:new Date().toLocaleString()};
+        chatMessages.push(messageObj);
+        renderChats();
+        updateNotifications(email);
+        document.getElementById("chatMessage").value="";
+    }
+
+    function renderChats(){
+        const container = document.getElementById("chatContainer");
+        container.innerHTML = "";
+        const period = document.getElementById("chatTimePeriod").value;
+        let filtered = chatMessages.filter(m=>{
+            const msgDate = new Date(m.time);
+            const now = new Date();
+            if(period==="today") return msgDate.toDateString()===now.toDateString();
+            if(period==="week") return (now-msgDate)<7*24*60*60*1000;
+            if(period==="month") return (now-msgDate)<30*24*60*60*1000;
+            return true;
+        });
+        filtered.forEach(m=>{
+            const div = document.createElement("div");
+            div.className="chat-message";
+            div.innerHTML=`<strong>To: ${m.to}</strong><br>${m.message}<br><small>${m.time}</small>`;
+            container.appendChild(div);
+        });
+    }
+
+    document.getElementById("chatTimePeriod").addEventListener("change",renderChats);
+
+    // Notifications
+    let notifications = [];
+    function updateNotifications(email){
+        notifications.push({text:`Message sent to ${email}`, time:new Date().toLocaleString()});
+        const list = document.getElementById("notificationList");
+        list.innerHTML = "";
+        notifications.slice(-5).forEach(n=>{
+            const p = document.createElement("p");
+            p.textContent = `${n.text} (${n.time})`;
+            list.appendChild(p);
+        });
+        document.getElementById("notificationCount").textContent = notifications.length;
+    }
+</script>
+
+</body>
+</html>

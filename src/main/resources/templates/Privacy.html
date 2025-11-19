@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Privacy Policy - VanishChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Embedded CSS -->
+  <style>
+    /* Global Styles */
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #262D7A; /* same as homepage */
+        color: #333;
+    }
+    a {
+        text-decoration: none;
+        color: #007bff;
+        transition: color 0.3s;
+    }
+    a:hover { color: #0056b3; }
+
+    .container {
+        max-width: 1100px;
+        margin: 60px auto;
+        padding: 40px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Navbar */
+    header {
+        background-color: #1a1a1a;
+        color: #fff;
+        padding: 20px 0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding:  20px;
+    }
+    .logo {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+    nav ul {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+    }
+    nav ul li a {
+        color: white;
+        font-weight: 500;
+        position: relative;
+        padding: 5px 0;
+    }
+    nav ul li a::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        left: 0;
+        bottom: -2px;
+        background-color: #ff6f61;
+        transition: width 0.3s;
+    }
+    nav ul li a:hover::after {
+        width: 100%;
+    }
+
+    /* Privacy Content */
+    h1 {
+        text-align: center;
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+        color: #1a1a1a;
+    }
+    h2 {
+        color: #182848;
+        margin-top: 30px;
+        margin-bottom: 15px;
+    }
+    ul {
+        padding-left: 20px;
+        margin-bottom: 20px;
+    }
+    ul li {
+        margin-bottom: 10px;
+    }
+    p {
+        margin-bottom: 15px;
+        line-height: 1.7;
+    }
+
+    /* Footer */
+    footer {
+        background-color: #1a1a1a;
+        color: white;
+        padding: 40px 20px;
+    }
+    .footer-grid {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 30px;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    .footer-logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    .footer-right ul {
+        list-style: none;
+        padding: 0;
+    }
+    .footer-right ul li {
+        margin: 10px 0;
+    }
+    .footer-right ul li a {
+        color: white;
+    }
+
+    /* Responsive */
+    @media(max-width:768px){
+        nav ul { gap:15px; }
+        h1 { font-size:1.8rem; }
+        .container { padding:30px 20px; }
+        .footer-grid { flex-direction: column; gap:20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<header>
+  <div class="nav">
+    <div class="logo">🕵️‍♂️ VanishChat</div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/Privacy">Privacy</a></li>
+        <li><a href="/verify">Verify</a></li>
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- Privacy Content -->
+<div class="container">
+  <h1>Privacy Policy</h1>
+  <p><strong>Effective Date:</strong> September 17, 2025</p>
+
+  <h2>Our Commitment</h2>
+  <p>VanishChat respects your privacy and ensures your data stays secure. We offer a secure chat platform only for verified businesses where messages vanish automatically.</p>
+
+  <h2>Information We Collect</h2>
+  <ul>
+    <li><strong>Business Verification:</strong> Documents to verify identity, stored securely.</li>
+    <li><strong>Chat Messages:</strong> End-to-end encrypted and auto-deleted; we don’t store chat history.</li>
+    <li><strong>Usage Data:</strong> Minimal data like login times to improve service.</li>
+  </ul>
+
+  <h2>How We Use Your Data</h2>
+  <ul>
+    <li>To verify business identity and grant access.</li>
+    <li>To enable secure chats between verified users.</li>
+    <li>To improve services and comply with laws.</li>
+  </ul>
+
+  <h2>Data Retention</h2>
+  <ul>
+    <li>Verification info is kept only as long as needed.</li>
+    <li>Chats vanish automatically and cannot be recovered.</li>
+    <li>Usage data is kept briefly for system health.</li>
+  </ul>
+
+  <h2>Your Rights</h2>
+  <p>You can request access, correction, or deletion of your verification data and contact us anytime with privacy concerns.</p>
+
+  <h2>Third Parties</h2>
+  <p>We do not sell or share your data except with trusted partners under strict confidentiality for verification or legal reasons.</p>
+
+  <h2>Policy Updates</h2>
+  <p>We may update this policy occasionally and will notify you of major changes.</p>
+
+  <h2>Contact Us</h2>
+  <p>Email: <a href="mailto:privacy@vanishchat.com">privacy@vanishchat.com</a><br>
+    Address: 123 Secure Lane, Secure City, Ahmedabad</p>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-left">
+      <div class="footer-logo">🕵️‍♂️ VanishChat</div>
+      <p>Secure & Temporary Messaging Platform for Verified Businesses.</p>
+      <p>&copy; 2025 VanishChat. All rights reserved.</p>
+    </div>
+    <div><p>Register Office: M68Q+HVM, Rawtara, West Bengal 741137</p>
+      <p>Phone: +91 892-704-3805</p>
+      <p>Email: <a href="mailto:info@standsweb.com">info@VanishChat.com</a></p></div>
+    <div class="footer-right">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/Privacy">Privacy</a></li>
+        <li><a href="/verify">Verify</a></li>
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
