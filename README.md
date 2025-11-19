@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # VanishChat
 
 ## About the Project
@@ -40,3 +41,6 @@ VanishChat is a web‑application built using Spring Boot (Java) for backend and
    ```bash
    git clone https://github.com/your‑username/VanishChat.git
    cd VanishChat
+=======
+# VanishChat
+>>>>>>> 95601f0b4cabf84c72cb219a71822f2d6d31c574
