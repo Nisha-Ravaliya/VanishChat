@@ -1,11 +1,12 @@
 package com.example.VanishChat.Repository;
 
 import com.example.VanishChat.Model.Message;
-import com.example.VanishChat.Model.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import java.time.LocalDateTime;
+import java.util.List;
+
 public interface MessageRepository extends JpaRepository<Message, Long> {
-    void delete(Message msg);
+    List<Message> findByFromEmailOrToEmail(String from, String to);
+    void deleteByExpiryTimeBefore(LocalDateTime now);
 }

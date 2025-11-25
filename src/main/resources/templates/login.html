@@ -193,7 +193,7 @@
 
             if (res.ok && data.token) {
                 localStorage.setItem("token", data.token);
-                messageBox.textContent = "Login successful. Redirecting...";
+                messageBox.textContent = "Login successful";
                 messageBox.classList.add("success");
                 setTimeout(() => { window.location.href = "/dashboard"; }, 1000);
             } else {

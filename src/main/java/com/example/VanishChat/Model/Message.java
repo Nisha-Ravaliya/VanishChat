@@ -1,39 +1,77 @@
 package com.example.VanishChat.Model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "messages")
 public class Message {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String sender;
-    private String receiver;
+    private String fromEmail;
+    private String toEmail;
     private String content;
-    private Integer expireAfterSeconds;
+    private LocalDateTime sentTime;
+    private LocalDateTime expiryTime;
+    private boolean readFlag;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    public Long getId() {
+        return id;
+    }
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getSender() { return sender; }
-    public void setSender(String sender) { this.sender = sender; }
+    public String getFromEmail() {
+        return fromEmail;
+    }
 
-    public String getReceiver() { return receiver; }
-    public void setReceiver(String receiver) { this.receiver = receiver; }
+    public void setFromEmail(String fromEmail) {
+        this.fromEmail = fromEmail;
+    }
 
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
+    public String getToEmail() {
+        return toEmail;
+    }
 
-    public Integer getExpireAfterSeconds() { return expireAfterSeconds; }
-    public void setExpireAfterSeconds(Integer expireAfterSeconds) { this.expireAfterSeconds = expireAfterSeconds; }
+    public void setToEmail(String toEmail) {
+        this.toEmail = toEmail;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public LocalDateTime getSentTime() {
+        return sentTime;
+    }
+
+    public void setSentTime(LocalDateTime sentTime) {
+        this.sentTime = sentTime;
+    }
+
+    public LocalDateTime getExpiryTime() {
+        return expiryTime;
+    }
+
+    public void setExpiryTime(LocalDateTime expiryTime) {
+        this.expiryTime = expiryTime;
+    }
+
+    public boolean isReadFlag() {
+        return readFlag;
+    }
+
+    public void setReadFlag(boolean readFlag) {
+        this.readFlag = readFlag;
+    }
 }

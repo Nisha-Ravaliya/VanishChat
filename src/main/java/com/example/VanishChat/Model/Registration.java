@@ -19,15 +19,7 @@ public class Registration {
     private String gstNumber;
     private String address;
     private String proofFilePath;
-    private String role;
 
-    // getters and setters for role
-    public String getRole() {
-        return role;
-    }
-    public void setRole(String role) {
-        this.role = role;
-    }
 
     public Long getId() {
         return id;
