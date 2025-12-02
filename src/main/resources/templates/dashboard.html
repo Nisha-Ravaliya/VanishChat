@@ -3,252 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VanishChat Dashboard</title>
+    <title>VanishChat - Dashboard</title>
     <style>
-        * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family: Arial,sans-serif; min-height:100vh; background:#f0f2f5; }
+        * { box-sizing:border-box; margin:0; padding:0; font-family:Arial, sans-serif;}
+        body { background:#f0f2f5; color:#333; }
+        .topbar { background:#1a1a1a; color:white; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:fixed; top:0; left:0; width:100%; z-index:1000; }
+        .topbar img { width:40px; height:40px; border-radius:50%; }
+        .topbar .user-info { display:flex; gap:10px; align-items:center; }
+        .sidebar { position:fixed; top:60px; left:0; width:230px; height:calc(100%-60px); background:#262D7A; color:white; padding:20px; transition: transform 0.3s; }
+        .sidebar h2 { margin-bottom:20px; }
+        .sidebar a { display:block; color:white; padding:10px; margin-bottom:10px; border-radius:6px; text-decoration:none; transition:background 0.3s; }
+        .sidebar a.active, .sidebar a:hover { background:#00ffaa; color:#262D7A; }
+        .sidebar button { margin-top:40px; padding:10px; width:100%; background:#e74c3c; border:none; border-radius:6px; cursor:pointer; }
+        main { margin-left:230px; margin-top:60px; padding:20px; transition: margin-left 0.3s; }
 
-        /* Login page */
-        #loginPage { display:flex; align-items:center; justify-content:center; height:100vh; background:#ecf0f1; }
-        #loginBox { background:white; padding:30px; border-radius:8px; box-shadow:0 1px 5px rgba(0,0,0,0.2); width:300px; }
-        #loginBox h2 { text-align:center; margin-bottom:20px; }
-        #loginBox input { width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #bbb; }
-        #loginBox button { width:100%; padding:10px; border:none; border-radius:6px; background:#1abc9c; color:white; cursor:pointer; }
+        #chatBox { background:#e5ddd5; height:400px; overflow-y:auto; padding:15px; border-radius:10px; }
+        .msg { max-width:65%; padding:10px 14px; border-radius:20px; margin:5px 0; font-size:14px; position:relative; }
+        .me { background:#dcf8c6; margin-left:auto; border-bottom-right-radius:0; }
+        .other { background:white; margin-right:auto; border-bottom-left-radius:0; }
+        .time { font-size:10px; opacity:.6; margin-top:4px; text-align:right; }
 
-        /* Sidebar */
-        aside.sidebar { width:240px; background:#2c3e50; color:white; display:flex; flex-direction:column; padding:20px; position:fixed; top:60px; bottom:0; }
-        aside.sidebar h2 { text-align:center; margin-bottom:20px; }
-        aside.sidebar nav { flex-grow:1; }
-        aside.sidebar nav a { display:block; color:white; text-decoration:none; padding:12px 15px; border-radius:5px; margin-bottom:10px; transition:0.3s; }
-        aside.sidebar nav a:hover, aside.sidebar nav a.active { background:#1abc9c; color:#2c3e50; }
-        aside.sidebar button.logoutBtn { margin-top:auto; padding:10px; border:none; border-radius:6px; background:#e74c3c; color:white; cursor:pointer; }
-        aside.sidebar button.logoutBtn:hover{background:#c0392b;}
+        table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+        th, td { padding:10px; border-bottom:1px solid #ccc; text-align:left; }
+        th { background:#00ffaa; color:#262D7A; }
+        tr:hover { background:#ecf0f1; cursor:pointer; }
+        #msgInput, #chatEmail, #vanishTime { width:100%; padding:10px; border-radius:6px; border:1px solid #ccc; margin-bottom:10px; }
+        #sendBtn { padding:10px 15px; border:none; background:#00ffaa; color:white; border-radius:6px; cursor:pointer; }
 
-        /* Topbar */
-        header.topbar { position:fixed; top:0; left:0; right:0; height:60px; background:white; display:flex; align-items:center; justify-content:space-between; padding:0 20px; box-shadow:0 1px 4px rgba(0,0,0,0.1); z-index:10; }
-        header.topbar .user-info { display:flex; align-items:center; gap:10px; }
-        header.topbar .user-info img { width:40px; height:40px; border-radius:50%; object-fit:cover; }
-        header.topbar .bell { position:relative; margin-right:20px; cursor:pointer; }
-        header.topbar .bell span { position:absolute; top:-5px; right:-5px; background:red; color:white; font-size:12px; padding:2px 6px; border-radius:50%; }
-        header.topbar .notifications { position:absolute; right:0; top:45px; background:white; width:250px; max-height:300px; overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,0.2); display:none; border-radius:8px; z-index:20; }
-        header.topbar .notifications p{ padding:10px; border-bottom:1px solid #eee; }
+        .profile-form input, .profile-form select, textarea { width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; }
+        .profile-form img { width:80px; height:80px; border-radius:50%; margin-bottom:10px; }
 
-        /* Main */
-        main.content { margin-left:240px; margin-top:60px; padding:20px; flex-grow:1; overflow-y:auto; height:calc(100vh - 60px); display:none; }
-        section { display:none; }
-        .cards { display:flex; gap:20px; flex-wrap:wrap; margin-top:20px; }
-        .card { background:#ecf0f1; flex:1 1 250px; padding:20px; border-radius:8px; box-shadow:0 1px 5px rgba(0,0,0,0.1); }
-        .card h3 { margin-bottom:10px; color:#34495e; }
-        input, textarea, select { width:100%; padding:10px; border-radius:6px; border:1px solid #bbb; margin-bottom:10px; }
-        button.saveBtn { padding:10px 15px; background:#1abc9c; color:white; border:none; border-radius:6px; cursor:pointer; }
-        img.profile-pic{width:100px; height:100px; border-radius:50%; margin-bottom:10px; object-fit:cover;}
-        .chat-card{ background:#ecf0f1; padding:15px; border-radius:8px; max-height:400px; overflow-y:auto; margin-bottom:10px;}
-        .chat-input{ display:flex; gap:10px; margin-top:10px;}
-        .chat-input input{ flex:1; padding:8px; border-radius:6px; border:1px solid #bbb;}
-        .chat-input select{ width:150px; }
-        .chat-input button{ padding:8px 15px; border:none; border-radius:6px; background:#1abc9c; color:white; cursor:pointer;}
-        .chat-message{ margin-bottom:10px; padding:8px 10px; border-radius:6px; background:#fff; border:1px solid #ccc;}
-        a.pdf-link{color:#1abc9c;text-decoration:underline;}
+        @media (max-width:992px){
+            .sidebar{transform:translateX(-100%);}
+            .sidebar.active{transform:translateX(0);}
+            main{margin-left:0;}
+            .menu-toggle{display:block;font-size:1.5rem;cursor:pointer;}
+        }
     </style>
 </head>
 <body>
 
-<!-- LOGIN PAGE -->
-<div id="loginPage">
-    <div id="loginBox">
-        <h2>Login</h2>
-        <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPassword" placeholder="Password">
-        <button onclick="login()">Login</button>
-    </div>
-</div>
-
-<!-- DASHBOARD -->
-<aside class="sidebar">
-    <h2>VanishChat</h2>
-    <nav>
-        <a href="#" class="active" onclick="showPage('dashboard',event)">🏠 Dashboard</a>
-        <a href="#" onclick="showPage('chat',event)">💬 Chat</a>
-        <a href="#" onclick="showPage('profile',event)">👤 Profile</a>
-        <a href="#" onclick="showPage('editProfile',event)">✏️ Edit Profile</a>
-        <a href="#" onclick="showPage('settings',event)">⚙️ Settings</a>
-    </nav>
-    <button class="logoutBtn" onclick="logout()">Logout</button>
-</aside>
-
 <header class="topbar">
+    <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
     <div class="user-info">
-        <img src="https://via.placeholder.com/40" id="topProfilePic">
-        <span id="topUserName">User</span>
-    </div>
-    <div class="bell" onclick="toggleNotifications()">
-        🔔<span id="notificationCount">0</span>
-        <div class="notifications" id="notificationList"><p>No notifications</p></div>
+        <img src="https://via.placeholder.com/40" id="topPic">
+        <span id="topName">User</span>
     </div>
 </header>
 
-<main class="content">
+<aside class="sidebar">
+    <h2>VanishChat</h2>
+    <a href="#" class="active" onclick="showPage('dashboard',event)">Dashboard</a>
+    <a href="#" onclick="showPage('chat',event)">Chat</a>
+    <a href="#" onclick="showPage('profile',event)">Profile</a>
+    <button onclick="logout()">Logout</button>
+</aside>
 
-    <!-- Dashboard -->
+<main>
     <section id="dashboard">
         <h1>Dashboard</h1>
-        <div class="cards">
-            <div class="card">
-                <h3>Your Details</h3>
-                <p><strong>Name:</strong> <span id="userNameDisplay"></span></p>
-                <p><strong>Email:</strong> <span id="userEmailDisplay"></span></p>
-                <p><strong>Business:</strong> <span id="userBusinessDisplay"></span></p>
-                <p><strong>GST Number:</strong> <span id="userGSTDisplay"></span></p>
-                <p><strong>Address:</strong> <span id="userAddressDisplay"></span></p>
-                <p><strong>Business Proof:</strong> <a href="#" id="userBusinessProof" class="pdf-link" target="_blank">View PDF</a></p>
-            </div>
-            <div class="card"><h3>Total Chats</h3><p id="totalChats">0</p></div>
-            <div class="card"><h3>Sent Chats</h3><p id="sentChats">0</p></div>
-            <div class="card"><h3>Pending Chats</h3><p id="pendingChats">0</p></div>
-        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Company</th>
+                <th>GST Number</th>
+                <th>Address</th>
+                <th>Pending Chat</th>
+            </tr>
+            </thead>
+            <tbody id="userList"></tbody>
+        </table>
     </section>
 
-    <!-- Chat -->
-    <section id="chat">
+    <section id="chat" style="display:none;">
         <h1>Chat</h1>
-        <div class="chat-card" id="chatContainer"></div>
-        <div class="chat-input">
-            <input type="email" id="chatEmail" placeholder="Recipient Email">
-            <input type="text" id="chatMessage" placeholder="Type a message...">
-            <select id="chatDuration">
-                <option value="600000">10 minutes</option>
-                <option value="3600000" selected>1 hour</option>
-                <option value="86400000">1 day</option>
-            </select>
-            <button onclick="sendMessage()">Send</button>
-        </div>
+        <input type="email" id="chatEmail" placeholder="Enter recipient email">
+        <div id="chatBox"></div>
+        <input type="text" id="msgInput" placeholder="Type your message here..." />
+        <select id="vanishTime">
+            <option value="10">10s</option>
+            <option value="30">30s</option>
+            <option value="60">60s</option>
+        </select>
+        <button id="sendBtn">Send</button>
     </section>
 
-    <!-- Profile -->
-    <section id="profile">
-        <h1>Profile</h1>
-        <div class="card">
-            <img src="https://via.placeholder.com/100" id="profilePic" class="profile-pic">
-            <label>Upload Picture</label>
-            <input type="file" id="profilePicInput" onchange="previewProfilePic(event)">
-            <p><strong>Name:</strong> <span id="profileName"></span></p>
-            <p><strong>Email:</strong> <span id="profileEmail"></span></p>
-            <p><strong>Business:</strong> <span id="profileBusiness"></span></p>
-            <p><strong>GST Number:</strong> <span id="profileGST"></span></p>
-            <p><strong>Address:</strong> <span id="profileAddress"></span></p>
-            <p><strong>Business Proof:</strong> <a href="#" id="profileBusinessProof" class="pdf-link" target="_blank">View PDF</a></p>
-        </div>
-    </section>
-
-    <!-- Edit Profile -->
-    <section id="editProfile">
+    <section id="profile" style="display:none;">
         <h1>Edit Profile</h1>
-        <div class="card">
-            <label>Name</label>
-            <input id="editName">
-            <label>Email</label>
-            <input id="editEmail">
-            <label>Business</label>
-            <input id="editBusiness">
-            <label>GST Number</label>
-            <input id="editGST">
-            <label>Address</label>
-            <textarea id="editAddress"></textarea>
-            <label>Business Proof (PDF)</label>
-            <input type="file" id="editBusinessProof" accept=".pdf" onchange="previewBusinessProof(event)">
-            <button class="saveBtn" onclick="saveProfile()">Save Changes</button>
-        </div>
+        <form class="profile-form" id="profileForm">
+            <img id="profilePicPreview" src="https://via.placeholder.com/80">
+            <input type="file" id="profilePic" accept="image/*">
+            <input type="text" id="proUsername" placeholder="Username">
+            <input type="email" id="proEmail" placeholder="Email" readonly>
+            <input type="password" id="proPassword" placeholder="Password">
+            <input type="text" id="proPhone" placeholder="Phone Number">
+            <input type="text" id="proBusinessName" placeholder="Company">
+            <input type="text" id="proGstNumber" placeholder="GST Number">
+            <textarea id="proAddress" placeholder="Address"></textarea>
+            <button type="button" onclick="saveProfile()">Save</button>
+        </form>
     </section>
-
-    <!-- Settings -->
-    <section id="settings">
-        <h1>Settings</h1>
-        <div class="card">Coming soon...</div>
-    </section>
-
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script>
-    // UTIL
-    function normalizeEmail(email){ return email.trim().toLowerCase(); }
-    function getUser() {
-        const db=JSON.parse(localStorage.getItem("usersDB")||"{}");
-        return db[loggedUserEmail];
+    const API = "http://localhost:8080";
+    let loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
+    if(!loggedUser){ alert("Login required"); window.location.href="/login"; }
+
+    // Fetch latest user data
+    async function fetchLoggedUser() {
+        const res = await fetch(`${API}/api/profile/${loggedUser.email}`);
+        const data = await res.json();
+        if(data) loggedUser = data;
+        localStorage.setItem("loggedUser", JSON.stringify(loggedUser));
     }
-    function saveUser(user){
-        const db=JSON.parse(localStorage.getItem("usersDB")||"{}");
-        db[normalizeEmail(user.email)]=user;
-        localStorage.setItem("usersDB",JSON.stringify(db));
+
+    // WebSocket connection
+    let socket = new SockJS(API + "/ws");
+    let stomp = Stomp.over(socket);
+    stomp.connect({}, () => {
+        console.log("WebSocket Connected ✔");
+        stomp.subscribe("/topic/chat/" + loggedUser.email, msg => {
+            const data = JSON.parse(msg.body);
+            if(data.sender !== loggedUser.email){
+                alert("New message from: " + data.sender);
+            }
+            loadChat(data.sender);
+        });
+    });
+
+    // Dashboard
+    async function loadDashboard(){
+        await fetchLoggedUser();
+
+        document.getElementById("topName").textContent = loggedUser.username;
+        document.getElementById("topPic").src = loggedUser.profilePic || "https://via.placeholder.com/40";
+
+        const tbody = document.getElementById("userList");
+        tbody.innerHTML = "";
+
+        // Logged-in user
+        const trUser = document.createElement("tr");
+        trUser.innerHTML = `
+            <td>${loggedUser.username}</td>
+            <td>${loggedUser.email}</td>
+            <td>${loggedUser.phone || "-"}</td>
+            <td>${loggedUser.company || "-"}</td>
+            <td>${loggedUser.gstNumber || "-"}</td>
+            <td>${loggedUser.address || "-"}</td>
+            <td>-</td>
+        `;
+        tbody.appendChild(trUser);
+
+        try{
+            const res = await fetch(API + "/users");
+            const users = await res.json();
+            users.forEach(u=>{
+                if(u.email !== loggedUser.email){
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${u.username}</td>
+                        <td>${u.email}</td>
+                        <td>${u.phone || "-"}</td>
+                        <td>${u.company || "-"}</td>
+                        <td>${u.gstNumber || "-"}</td>
+                        <td>${u.address || "-"}</td>
+                        <td>-</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+        }catch(e){ console.error("Dashboard error:", e); }
+
+        loadProfileFields();
     }
 
-    // LOGIN LOGIC
-    let loggedUserEmail = localStorage.getItem("loggedUser")||"";
+    // Profile
+    function loadProfileFields(){
+        document.getElementById("proUsername").value = loggedUser.username;
+        document.getElementById("proEmail").value = loggedUser.email;
+        document.getElementById("proPassword").value = loggedUser.password;
+        document.getElementById("proPhone").value = loggedUser.phone || "";
+        document.getElementById("proBusinessName").value = loggedUser.company || "";
+        document.getElementById("proGstNumber").value = loggedUser.gstNumber || "";
+        document.getElementById("proAddress").value = loggedUser.address || "";
+        document.getElementById("profilePicPreview").src = loggedUser.profilePic || "https://via.placeholder.com/80";
+    }
 
-    function login(){
-        const email = normalizeEmail(document.getElementById("loginEmail").value);
-        const pass = document.getElementById("loginPassword").value;
-        if(!email || !pass) return alert("Fill all fields");
-
-        const db = JSON.parse(localStorage.getItem("usersDB")||"{}");
-        if(db[email]){
-            // Existing user, check password
-            if(db[email].password!==pass) return alert("Wrong password!");
-        } else {
-            // New user, create automatically
-            db[email]={email:email,name:"User",password:pass,chats:[],notifications:[]};
-            localStorage.setItem("usersDB",JSON.stringify(db));
+    // Save profile
+    async function saveProfile(){
+        const pic = document.getElementById("profilePic");
+        if(pic.files[0]){
+            const reader = new FileReader();
+            reader.onload = e => {
+                loggedUser.profilePic = e.target.result;
+                localStorage.setItem("loggedUser", JSON.stringify(loggedUser));
+            };
+            reader.readAsDataURL(pic.files[0]);
         }
-        loggedUserEmail=email;
-        localStorage.setItem("loggedUser",email);
-        document.getElementById("loginPage").style.display="none";
-        document.querySelector("main.content").style.display="block";
-        updateDashboard(); updateProfileSection(); updateEditProfileSection();
+
+        loggedUser.username = document.getElementById("proUsername").value;
+        loggedUser.phone = document.getElementById("proPhone").value;
+        loggedUser.company = document.getElementById("proBusinessName").value;
+        loggedUser.gstNumber = document.getElementById("proGstNumber").value;
+        loggedUser.address = document.getElementById("proAddress").value;
+
+        await fetch(`${API}/api/profile/update`, {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify(loggedUser)
+        });
+
+        alert("Profile Updated");
+        await fetchLoggedUser();
+        loadDashboard();
     }
 
-    // LOGOUT
-    function logout(){ localStorage.removeItem("loggedUser"); location.reload(); }
+    // Chat
+    const chatBox = document.getElementById("chatBox");
+    const chatEmailInput = document.getElementById("chatEmail");
+    const msgInput = document.getElementById("msgInput");
 
-    // PAGE SWITCH
-    function showPage(page,event){ event.preventDefault(); document.querySelectorAll("section").forEach(s=>s.style.display="none"); document.getElementById(page).style.display="block"; document.querySelectorAll(".sidebar nav a").forEach(a=>a.classList.remove("active")); event.target.classList.add("active"); }
-
-    // PROFILE PIC
-    function previewProfilePic(event){ const reader=new FileReader(); reader.onload=function(){ let user=getUser(); user.profilePic=reader.result; saveUser(user); document.getElementById("profilePic").src=reader.result; document.getElementById("topProfilePic").src=reader.result; }; reader.readAsDataURL(event.target.files[0]); }
-
-    // BUSINESS PROOF
-    function previewBusinessProof(event){ const file=event.target.files[0]; if(file.type!=="application/pdf") return alert("Only PDF allowed"); const reader=new FileReader(); reader.onload=function(){ let user=getUser(); user.businessProof=reader.result; saveUser(user); updateDashboard(); updateProfileSection(); }; reader.readAsDataURL(file); }
-
-    // SAVE PROFILE
-    function saveProfile(){ let user=getUser(); const newEmail=normalizeEmail(document.getElementById("editEmail").value); if(newEmail!==loggedUserEmail){ const db=JSON.parse(localStorage.getItem("usersDB")||"{}"); db[newEmail]={...user,email:newEmail}; delete db[loggedUserEmail]; localStorage.setItem("usersDB",JSON.stringify(db)); loggedUserEmail=newEmail; localStorage.setItem("loggedUser",newEmail); } user.name=document.getElementById("editName").value; user.business=document.getElementById("editBusiness").value; user.gstNumber=document.getElementById("editGST").value; user.address=document.getElementById("editAddress").value; saveUser(user); alert("Profile saved!"); updateDashboard(); updateProfileSection(); updateEditProfileSection(); }
-
-    // REMOVE EXPIRED DATA
-    function removeExpiredData(){ const db=JSON.parse(localStorage.getItem("usersDB")||"{}"); Object.keys(db).forEach(email=>{ let user=db[email]; user.chats=(user.chats||[]).filter(c=>c.expireAt>Date.now()); user.notifications=(user.notifications||[]).filter(n=>n.expireAt>Date.now()); }); localStorage.setItem("usersDB",JSON.stringify(db)); }
-
-    // CHAT RENDER
-    function renderChats(){ const container=document.getElementById("chatContainer"); const user=getUser(); container.innerHTML=""; (user.chats||[]).forEach(c=>{ container.innerHTML+=`<div class="chat-message"><strong>From:</strong>${c.from}<br><strong>To:</strong>${c.to}<br>${c.msg}<br><small>${c.time}</small></div>`; }); document.getElementById("totalChats").textContent=(user.chats||[]).length; document.getElementById("sentChats").textContent=(user.chats||[]).filter(c=>c.from===user.email).length; document.getElementById("pendingChats").textContent=(user.chats||[]).filter(c=>c.expireAt>Date.now()).length; }
-
-    // NOTIFICATIONS
-    function loadNotifications(){ const user=getUser(); const list=document.getElementById("notificationList"); list.innerHTML=""; if(!user.notifications || user.notifications.length===0){ list.innerHTML="<p>No notifications</p>"; return; } user.notifications.forEach(n=>{ const p=document.createElement("p"); p.textContent=`${n.text} (${n.time})`; list.appendChild(p); }); document.getElementById("notificationCount").textContent=user.notifications.length; }
-    function toggleNotifications(){ const el=document.getElementById("notificationList"); el.style.display = el.style.display==="block"?"none":"block"; }
-
-    // SEND MESSAGE
-    function sendMessage(){ const toEmail=normalizeEmail(document.getElementById("chatEmail").value); const msg=document.getElementById("chatMessage").value; if(!toEmail || !msg) return alert("Fill both fields!"); const db=JSON.parse(localStorage.getItem("usersDB")||"{}"); if(!db[toEmail]) return alert("Recipient not found!"); const sender=getUser(); const duration=parseInt(document.getElementById("chatDuration").value); const chatObj={from:sender.email,to:toEmail,msg,time:new Date().toLocaleString(),expireAt:Date.now()+duration}; sender.chats=sender.chats||[]; sender.chats.push(chatObj); saveUser(sender); db[toEmail].notifications=db[toEmail].notifications||[]; db[toEmail].notifications.push({text:`New message from ${sender.name}`,time:new Date().toLocaleString(),expireAt:Date.now()+duration}); localStorage.setItem("usersDB",JSON.stringify(db)); document.getElementById("chatMessage").value=""; removeExpiredData(); renderChats(); loadNotifications(); }
-
-    // UPDATE DASHBOARD
-    function updateDashboard(){ const user=getUser(); document.getElementById("topUserName").textContent=user.name; document.getElementById("topProfilePic").src=user.profilePic||"https://via.placeholder.com/40"; document.getElementById("userNameDisplay").textContent=user.name; document.getElementById("userEmailDisplay").textContent=user.email; document.getElementById("userBusinessDisplay").textContent=user.business; document.getElementById("userGSTDisplay").textContent=user.gstNumber||"N/A"; document.getElementById("userAddressDisplay").textContent=user.address; if(user.businessProof){ document.getElementById("userBusinessProof").href=user.businessProof; document.getElementById("userBusinessProof").textContent="View PDF"; } else { document.getElementById("userBusinessProof").textContent="Not uploaded"; } renderChats(); loadNotifications(); }
-
-    // PROFILE UPDATE
-    function updateProfileSection(){ const user=getUser(); document.getElementById("profileName").textContent=user.name; document.getElementById("profileEmail").textContent=user.email; document.getElementById("profileBusiness").textContent=user.business; document.getElementById("profileGST").textContent=user.gstNumber||"N/A"; document.getElementById("profileAddress").textContent=user.address; document.getElementById("profilePic").src=user.profilePic||"https://via.placeholder.com/100"; if(user.businessProof){ document.getElementById("profileBusinessProof").href=user.businessProof; document.getElementById("profileBusinessProof").textContent="View PDF"; } }
-
-    // EDIT PROFILE FILL
-    function updateEditProfileSection(){ const user=getUser(); document.getElementById("editName").value=user.name; document.getElementById("editEmail").value=user.email; document.getElementById("editBusiness").value=user.business; document.getElementById("editGST").value=user.gstNumber||""; document.getElementById("editAddress").value=user.address; }
-
-    // INIT
-    if(loggedUserEmail){
-        document.getElementById("loginPage").style.display="none";
-        document.querySelector("main.content").style.display="block";
-        updateDashboard(); updateProfileSection(); updateEditProfileSection();
+    async function loadChat(email){
+        if(!email) return;
+        chatEmailInput.value = email;
+        const res = await fetch(`${API}/chat/${loggedUser.email}/${email}`);
+        const messages = await res.json();
+        chatBox.innerHTML = "";
+        messages.sort((a,b)=>a.timestamp-b.timestamp);
+        messages.forEach(m=>{
+            const div = document.createElement("div");
+            div.classList.add("msg");
+            div.classList.add(m.sender===loggedUser.email?"me":"other");
+            const time = new Date(m.timestamp).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+            div.innerHTML = `${m.message}<div class='time'>${time}</div>`;
+            chatBox.appendChild(div);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
     }
-    removeExpiredData();
+
+    document.getElementById("sendBtn").addEventListener("click", async ()=>{
+        const receiver = chatEmailInput.value.trim();
+        const message = msgInput.value.trim();
+        const vanishSeconds = parseInt(document.getElementById("vanishTime").value);
+        if(!receiver || !message) return alert("Enter email & message");
+
+        const msgObj = { sender: loggedUser.email, receiver, message, vanishSeconds };
+        await fetch(API + "/chat/send", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(msgObj) });
+        stomp.send("/app/send", {}, JSON.stringify(msgObj));
+        msgInput.value="";
+        loadChat(receiver);
+    });
+
+    msgInput.addEventListener("keypress", e=>{ if(e.key==="Enter") document.getElementById("sendBtn").click(); });
+
+    // Page switch & logout
+    function showPage(page,e){
+        e && e.preventDefault();
+        document.querySelectorAll("main section").forEach(s=>s.style.display="none");
+        document.getElementById(page).style.display="block";
+        document.querySelectorAll(".sidebar a").forEach(a=>a.classList.remove("active"));
+        if(e) e.target.classList.add("active");
+        if(window.innerWidth<992) toggleSidebar();
+    }
+    function logout(){ localStorage.removeItem("loggedUser"); window.location.href="/login"; }
+    function toggleSidebar(){ document.querySelector(".sidebar").classList.toggle("active"); }
+
+    // Init
+    loadDashboard();
 </script>
 </body>
 </html>
