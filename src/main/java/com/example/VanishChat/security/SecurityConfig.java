@@ -19,20 +19,20 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService(BCryptPasswordEncoder passwordEncoder) {
-        UserDetails adminUser = User.withUsername("nisha")
-                .password(passwordEncoder.encode("nisha@2005"))
-                .roles("ADMIN")
-                .build();
-
-        UserDetails normalUser = User.withUsername("user1")
-                .password(passwordEncoder.encode("user1pass"))
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(adminUser, normalUser);
-    }
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsService(BCryptPasswordEncoder passwordEncoder) {
+//        UserDetails adminUser = User.withUsername("nisha")
+//                .password(passwordEncoder.encode("nisha@2005"))
+//                .roles("ADMIN")
+//                .build();
+//
+//        UserDetails normalUser = User.withUsername("user1")
+//                .password(passwordEncoder.encode("user1pass"))
+//                .roles("USER")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(adminUser, normalUser);
+//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
@@ -42,13 +42,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/login", "/register",
                                 "/api/login", "/api/register",
+                                "/favicon.ico",
                                 "/Privacy", "/verify",
                                 "/css/**", "/js/**", "/images/**",
                                 "/dashboard"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // ✅ Add your JWT filter BEFORE Spring's UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/logout")

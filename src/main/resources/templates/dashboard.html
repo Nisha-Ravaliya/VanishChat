@@ -7,31 +7,57 @@
     <style>
         * { box-sizing:border-box; margin:0; padding:0; font-family:Arial, sans-serif;}
         body { background:#f0f2f5; color:#333; }
-        .topbar { background:#1a1a1a; color:white; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:fixed; top:0; left:0; width:100%; z-index:1000; }
+
+        .topbar {
+            background:#1a1a1a; color:white;
+            height:60px; display:flex; align-items:center;
+            justify-content:space-between; padding:0 20px;
+            position:fixed; top:0; left:0; width:100%; z-index:1000;
+        }
         .topbar img { width:40px; height:40px; border-radius:50%; }
         .topbar .user-info { display:flex; gap:10px; align-items:center; }
-        .sidebar { position:fixed; top:60px; left:0; width:230px; height:calc(100%-60px); background:#262D7A; color:white; padding:20px; transition: transform 0.3s; }
-        .sidebar h2 { margin-bottom:20px; }
-        .sidebar a { display:block; color:white; padding:10px; margin-bottom:10px; border-radius:6px; text-decoration:none; transition:background 0.3s; }
-        .sidebar a.active, .sidebar a:hover { background:#00ffaa; color:#262D7A; }
-        .sidebar button { margin-top:40px; padding:10px; width:100%; background:#e74c3c; border:none; border-radius:6px; cursor:pointer; }
-        main { margin-left:230px; margin-top:60px; padding:20px; transition: margin-left 0.3s; }
 
-        #chatBox { background:#e5ddd5; height:400px; overflow-y:auto; padding:15px; border-radius:10px; }
-        .msg { max-width:65%; padding:10px 14px; border-radius:20px; margin:5px 0; font-size:14px; position:relative; }
-        .me { background:#dcf8c6; margin-left:auto; border-bottom-right-radius:0; }
-        .other { background:white; margin-right:auto; border-bottom-left-radius:0; }
-        .time { font-size:10px; opacity:.6; margin-top:4px; text-align:right; }
+        .sidebar {
+            position:fixed; top:60px; left:0; width:230px;
+            height:calc(100% - 60px); background:#262D7A;
+            color:white; padding:20px; transition:transform .3s;
+        }
+        .sidebar h2 { margin-bottom:20px; }
+        .sidebar a {
+            display:block; color:white; padding:10px;
+            margin-bottom:10px; border-radius:6px;
+            text-decoration:none; transition:background .3s;
+        }
+        .sidebar a.active, .sidebar a:hover {
+            background:#00ffaa; color:#262D7A;
+        }
+        .sidebar button {
+            margin-top:40px; padding:10px; width:100%;
+            background:#e74c3c; border:none; border-radius:6px; cursor:pointer;
+        }
+
+        main { margin-left:230px; margin-top:60px; padding:20px; transition:.3s; }
 
         table { width:100%; border-collapse:collapse; margin-bottom:20px; }
         th, td { padding:10px; border-bottom:1px solid #ccc; text-align:left; }
         th { background:#00ffaa; color:#262D7A; }
         tr:hover { background:#ecf0f1; cursor:pointer; }
-        #msgInput, #chatEmail, #vanishTime { width:100%; padding:10px; border-radius:6px; border:1px solid #ccc; margin-bottom:10px; }
-        #sendBtn { padding:10px 15px; border:none; background:#00ffaa; color:white; border-radius:6px; cursor:pointer; }
 
-        .profile-form input, .profile-form select, textarea { width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; }
-        .profile-form img { width:80px; height:80px; border-radius:50%; margin-bottom:10px; }
+        #chatBox {
+            background:#e5ddd5; height:400px; overflow-y:auto;
+            padding:15px; border-radius:10px; margin-bottom:10px;
+        }
+
+        .msg { max-width:65%; padding:10px 14px; border-radius:20px;
+            margin:5px 0; font-size:14px; position:relative; }
+        .me { background:#dcf8c6; margin-left:auto; border-bottom-right-radius:0; }
+        .other { background:white; margin-right:auto; border-bottom-left-radius:0; }
+        .time { font-size:10px; opacity:.6; margin-top:4px; text-align:right; }
+
+        input, select, textarea, button {
+            width:100%; padding:10px; border-radius:6px; border:1px solid #ccc; margin-bottom:10px;
+        }
+        button { cursor:pointer; border:none; background:#00ffaa; color:#262D7A; }
 
         @media (max-width:992px){
             .sidebar{transform:translateX(-100%);}
@@ -41,6 +67,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <header class="topbar">
@@ -53,23 +80,22 @@
 
 <aside class="sidebar">
     <h2>VanishChat</h2>
-    <a href="#" class="active" onclick="showPage('dashboard',event)">Dashboard</a>
-    <a href="#" onclick="showPage('chat',event)">Chat</a>
-    <a href="#" onclick="showPage('profile',event)">Profile</a>
+    <a href="#" class="active" onclick="showPage('dashboard', event)">Dashboard</a>
+    <a href="#" onclick="showPage('chat', event)">Chat</a>
+    <a href="#" onclick="showPage('profile', event)">Profile</a>
     <button onclick="logout()">Logout</button>
 </aside>
 
 <main>
+    <!-- DASHBOARD -->
     <section id="dashboard">
-        <h1>Dashboard</h1>
+        <h1>Welcome, <span id="welcomeUser"></span> 👋</h1>
         <table>
             <thead>
             <tr>
                 <th>Username</th>
                 <th>Email</th>
                 <th>Phone</th>
-                <th>Company</th>
-                <th>GST Number</th>
                 <th>Address</th>
                 <th>Pending Chat</th>
             </tr>
@@ -78,11 +104,12 @@
         </table>
     </section>
 
+    <!-- CHAT -->
     <section id="chat" style="display:none;">
         <h1>Chat</h1>
-        <input type="email" id="chatEmail" placeholder="Enter recipient email">
+        <input type="email" id="chatEmail" placeholder="Enter email to chat">
         <div id="chatBox"></div>
-        <input type="text" id="msgInput" placeholder="Type your message here..." />
+        <input type="text" id="msgInput" placeholder="Type message...">
         <select id="vanishTime">
             <option value="10">10s</option>
             <option value="30">30s</option>
@@ -91,190 +118,196 @@
         <button id="sendBtn">Send</button>
     </section>
 
+    <!-- PROFILE -->
     <section id="profile" style="display:none;">
         <h1>Edit Profile</h1>
-        <form class="profile-form" id="profileForm">
-            <img id="profilePicPreview" src="https://via.placeholder.com/80">
+
+        <form id="profileForm">
+            <!-- Profile pic preview -->
+            <img id="profilePicPreview" src="https://via.placeholder.com/80" style="display:block;margin-bottom:10px;">
             <input type="file" id="profilePic" accept="image/*">
+
             <input type="text" id="proUsername" placeholder="Username">
             <input type="email" id="proEmail" placeholder="Email" readonly>
-            <input type="password" id="proPassword" placeholder="Password">
-            <input type="text" id="proPhone" placeholder="Phone Number">
-            <input type="text" id="proBusinessName" placeholder="Company">
-            <input type="text" id="proGstNumber" placeholder="GST Number">
+
+            <!-- Password field with toggle -->
+            <div style="position:relative;">
+                <input type="password" id="proPassword" placeholder="Password">
+                <span onclick="togglePassword()" style="position:absolute;right:10px;top:10px;cursor:pointer;">👁️</span>
+            </div>
+
+            <input type="text" id="proPhone" placeholder="Phone">
             <textarea id="proAddress" placeholder="Address"></textarea>
+
+            <input type="text" id="proBusinessName" placeholder="Business Name">
+            <input type="text" id="proGstNumber" placeholder="GST Number">
+
+            <label>Business Proof File</label>
+            <input type="text" id="proProofFilePath" placeholder="Existing file" readonly>
+            <input type="file" id="newBusinessProof">
+
             <button type="button" onclick="saveProfile()">Save</button>
         </form>
     </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 <script>
     const API = "http://localhost:8080";
     let loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
-    if(!loggedUser){ alert("Login required"); window.location.href="/login"; }
+    if(!loggedUser){ alert("Please login first!"); window.location.href="/login"; }
 
-    // Fetch latest user data
-    async function fetchLoggedUser() {
-        const res = await fetch(`${API}/api/profile/${loggedUser.email}`);
-        const data = await res.json();
-        if(data) loggedUser = data;
-        localStorage.setItem("loggedUser", JSON.stringify(loggedUser));
+    // TOPBAR + WELCOME
+    document.getElementById("topName").textContent = loggedUser.username;
+    document.getElementById("topPic").src = loggedUser.profilePic || "https://via.placeholder.com/40";
+    document.getElementById("welcomeUser").textContent = loggedUser.username;
+
+    // Sidebar toggle
+    function toggleSidebar(){ document.querySelector(".sidebar").classList.toggle("active"); }
+    function logout(){ localStorage.removeItem("loggedUser"); localStorage.removeItem("token"); window.location.href="/login"; }
+    function showPage(page,event){
+        event && event.preventDefault();
+        document.querySelectorAll("main section").forEach(sec=>sec.style.display="none");
+        document.getElementById(page).style.display="block";
+        document.querySelectorAll(".sidebar a").forEach(a=>a.classList.remove("active"));
+        event.target.classList.add("active");
     }
 
-    // WebSocket connection
-    let socket = new SockJS(API + "/ws");
-    let stomp = Stomp.over(socket);
-    stomp.connect({}, () => {
-        console.log("WebSocket Connected ✔");
-        stomp.subscribe("/topic/chat/" + loggedUser.email, msg => {
-            const data = JSON.parse(msg.body);
-            if(data.sender !== loggedUser.email){
-                alert("New message from: " + data.sender);
-            }
-            loadChat(data.sender);
-        });
-    });
-
-    // Dashboard
-    async function loadDashboard(){
-        await fetchLoggedUser();
-
-        document.getElementById("topName").textContent = loggedUser.username;
-        document.getElementById("topPic").src = loggedUser.profilePic || "https://via.placeholder.com/40";
-
+    // Load dashboard
+    async function loadDashboard() {
         const tbody = document.getElementById("userList");
         tbody.innerHTML = "";
 
-        // Logged-in user
-        const trUser = document.createElement("tr");
-        trUser.innerHTML = `
+        tbody.innerHTML += `<tr>
             <td>${loggedUser.username}</td>
             <td>${loggedUser.email}</td>
             <td>${loggedUser.phone || "-"}</td>
-            <td>${loggedUser.company || "-"}</td>
-            <td>${loggedUser.gstNumber || "-"}</td>
             <td>${loggedUser.address || "-"}</td>
             <td>-</td>
-        `;
-        tbody.appendChild(trUser);
+        </tr>`;
 
-        try{
-            const res = await fetch(API + "/users");
+        try {
+            const res = await fetch(`${API}/users`);
             const users = await res.json();
-            users.forEach(u=>{
+            users.forEach(u => {
                 if(u.email !== loggedUser.email){
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
+                    tbody.innerHTML += `<tr>
                         <td>${u.username}</td>
                         <td>${u.email}</td>
                         <td>${u.phone || "-"}</td>
-                        <td>${u.company || "-"}</td>
-                        <td>${u.gstNumber || "-"}</td>
                         <td>${u.address || "-"}</td>
                         <td>-</td>
-                    `;
-                    tbody.appendChild(tr);
+                    </tr>`;
                 }
             });
-        }catch(e){ console.error("Dashboard error:", e); }
+        } catch(e){ console.error("Error loading users:", e); }
 
         loadProfileFields();
     }
 
-    // Profile
+    // Load profile fields
     function loadProfileFields(){
         document.getElementById("proUsername").value = loggedUser.username;
         document.getElementById("proEmail").value = loggedUser.email;
-        document.getElementById("proPassword").value = loggedUser.password;
+        document.getElementById("proPassword").value = ""; // blank for security
         document.getElementById("proPhone").value = loggedUser.phone || "";
-        document.getElementById("proBusinessName").value = loggedUser.company || "";
-        document.getElementById("proGstNumber").value = loggedUser.gstNumber || "";
         document.getElementById("proAddress").value = loggedUser.address || "";
         document.getElementById("profilePicPreview").src = loggedUser.profilePic || "https://via.placeholder.com/80";
+        document.getElementById("proBusinessName").value = loggedUser.businessName || "";
+        document.getElementById("proGstNumber").value = loggedUser.gstNumber || "";
+        document.getElementById("proProofFilePath").value = loggedUser.proofFilePath || "";
+    }
+
+    // Toggle password visibility
+    function togglePassword(){
+        const pass = document.getElementById("proPassword");
+        pass.type = pass.type === "password" ? "text" : "password";
     }
 
     // Save profile
-    async function saveProfile(){
-        const pic = document.getElementById("profilePic");
-        if(pic.files[0]){
-            const reader = new FileReader();
-            reader.onload = e => {
-                loggedUser.profilePic = e.target.result;
-                localStorage.setItem("loggedUser", JSON.stringify(loggedUser));
-            };
-            reader.readAsDataURL(pic.files[0]);
+    async function saveProfile() {
+        const profilePicFile = document.getElementById("profilePic").files[0];
+        const proofFile = document.getElementById("newBusinessProof").files[0];
+
+        let formData = new FormData();
+        formData.append("username", document.getElementById("proUsername").value);
+        formData.append("email", document.getElementById("proEmail").value);
+        formData.append("password", document.getElementById("proPassword").value);
+        formData.append("phone", document.getElementById("proPhone").value);
+        formData.append("address", document.getElementById("proAddress").value);
+        formData.append("businessName", document.getElementById("proBusinessName").value);
+        formData.append("gstNumber", document.getElementById("proGstNumber").value);
+        if(profilePicFile) formData.append("profilePic", profilePicFile);
+        if(proofFile) formData.append("businessProof", proofFile);
+
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API}/api/profile`, {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}` },
+                body: formData
+            });
+            const data = await res.json();
+            if(data.success){
+                alert("Profile updated!");
+                localStorage.setItem("loggedUser", JSON.stringify(data.user));
+                loggedUser = data.user;
+                loadDashboard();
+            } else {
+                alert("Update failed: "+data.message);
+            }
+        } catch(e){
+            console.error(e);
+            alert("Error updating profile");
         }
-
-        loggedUser.username = document.getElementById("proUsername").value;
-        loggedUser.phone = document.getElementById("proPhone").value;
-        loggedUser.company = document.getElementById("proBusinessName").value;
-        loggedUser.gstNumber = document.getElementById("proGstNumber").value;
-        loggedUser.address = document.getElementById("proAddress").value;
-
-        await fetch(`${API}/api/profile/update`, {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body: JSON.stringify(loggedUser)
-        });
-
-        alert("Profile Updated");
-        await fetchLoggedUser();
-        loadDashboard();
     }
 
-    // Chat
-    const chatBox = document.getElementById("chatBox");
-    const chatEmailInput = document.getElementById("chatEmail");
-    const msgInput = document.getElementById("msgInput");
+    // ====================== CHAT ======================
+    let socket = new SockJS(`${API}/ws`);
+    let stompClient = Stomp.over(socket);
+    stompClient.connect({}, ()=>{
+        console.log("Connected to WebSocket");
 
-    async function loadChat(email){
-        if(!email) return;
-        chatEmailInput.value = email;
-        const res = await fetch(`${API}/chat/${loggedUser.email}/${email}`);
-        const messages = await res.json();
-        chatBox.innerHTML = "";
-        messages.sort((a,b)=>a.timestamp-b.timestamp);
-        messages.forEach(m=>{
-            const div = document.createElement("div");
-            div.classList.add("msg");
-            div.classList.add(m.sender===loggedUser.email?"me":"other");
-            const time = new Date(m.timestamp).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-            div.innerHTML = `${m.message}<div class='time'>${time}</div>`;
-            chatBox.appendChild(div);
+        stompClient.subscribe("/chat/"+loggedUser.email, msg=>{
+            const data = JSON.parse(msg.body);
+            addMessage(data, false);
         });
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
 
-    document.getElementById("sendBtn").addEventListener("click", async ()=>{
-        const receiver = chatEmailInput.value.trim();
-        const message = msgInput.value.trim();
-        const vanishSeconds = parseInt(document.getElementById("vanishTime").value);
-        if(!receiver || !message) return alert("Enter email & message");
-
-        const msgObj = { sender: loggedUser.email, receiver, message, vanishSeconds };
-        await fetch(API + "/chat/send", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(msgObj) });
-        stomp.send("/app/send", {}, JSON.stringify(msgObj));
-        msgInput.value="";
-        loadChat(receiver);
+        stompClient.subscribe("/notify/"+loggedUser.email, msg=>{
+            showNotification(msg.body);
+        });
     });
 
-    msgInput.addEventListener("keypress", e=>{ if(e.key==="Enter") document.getElementById("sendBtn").click(); });
+    document.getElementById("sendBtn").addEventListener("click", ()=>{
+        const receiver = document.getElementById("chatEmail").value;
+        const message = document.getElementById("msgInput").value;
+        if(!receiver || !message) return;
 
-    // Page switch & logout
-    function showPage(page,e){
-        e && e.preventDefault();
-        document.querySelectorAll("main section").forEach(s=>s.style.display="none");
-        document.getElementById(page).style.display="block";
-        document.querySelectorAll(".sidebar a").forEach(a=>a.classList.remove("active"));
-        if(e) e.target.classList.add("active");
-        if(window.innerWidth<992) toggleSidebar();
+        const msg = { sender: loggedUser.email, receiver, message };
+        stompClient.send("/app/send", {}, JSON.stringify(msg));
+        addMessage(msg, true);
+        document.getElementById("msgInput").value = "";
+    });
+
+    function addMessage(msg, isMine){
+        const box = document.getElementById("chatBox");
+        const div = document.createElement("div");
+        div.classList.add("msg", isMine?"me":"other");
+        div.innerHTML = `${msg.message}<div class="time">${new Date().toLocaleTimeString()}</div>`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
     }
-    function logout(){ localStorage.removeItem("loggedUser"); window.location.href="/login"; }
-    function toggleSidebar(){ document.querySelector(".sidebar").classList.toggle("active"); }
 
-    // Init
+    function showNotification(txt){
+        const note = document.createElement("div");
+        note.style.background="#00ffaa"; note.style.padding="10px";
+        note.style.margin="10px 0"; note.style.borderRadius="6px"; note.innerText=txt;
+        document.body.appendChild(note);
+        setTimeout(()=>{ note.remove(); },4000);
+    }
+
+    // Initial load
     loadDashboard();
 </script>
 </body>
