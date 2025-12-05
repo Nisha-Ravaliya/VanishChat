@@ -23,12 +23,6 @@ public class PageController {
         return "verify"; //templates/verify.html
     }
 
-    @GetMapping("vanish_chat_demo")
-    public String vanishChatDemo(Model model, Principal principal) {
-        boolean isLoggedIn = principal != null;
-        model.addAttribute("isLoggedIn", isLoggedIn);
-        return "vanish_chat_demo";
-    }
 
     @GetMapping("/register")
     public String showRegisterPage() {
@@ -45,10 +39,6 @@ public class PageController {
         return "login"; //  templates/login.html
     }
 
-    @GetMapping("/edit_profile")
-    public String editProfilePage() {
-        return "edit_profile"; // templates/edit_profile.html
-    }
 
     @GetMapping("/Privacy")
     public String Privacy() {
