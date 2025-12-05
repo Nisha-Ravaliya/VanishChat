@@ -12,7 +12,7 @@
             background:#1a1a1a; color:white;
             height:60px; display:flex; align-items:center;
             justify-content:space-between; padding:0 20px;
-            position:fixed; top:0; left:0; width:100%; z-index:1000;
+            position:fixed; top:0; left:0; width:100%; z-index:1001;
         }
         .topbar img { width:40px; height:40px; border-radius:50%; }
         .topbar .user-info { display:flex; gap:10px; align-items:center; }
@@ -65,9 +65,26 @@
             main{margin-left:0;}
             .menu-toggle{display:block;font-size:1.5rem;cursor:pointer;}
         }
+
+        #profilePicPreview, #businessProofPreview {
+            max-width:100px; max-height:100px; display:block; margin-bottom:10px; border-radius:6px; object-fit:cover;
+        }
+
+        /* ===== Top Notification Bar ===== */
+        #notificationBar {
+            position:fixed; top:60px; left:230px; right:0;
+            z-index:1002; display:flex; flex-direction:column;
+            gap:5px; padding:10px; pointer-events:none;
+        }
+        @media (max-width:992px){ #notificationBar { left:0; } }
+        .notification {
+            background:#00ffaa; color:#262D7A;
+            padding:10px 15px; border-radius:6px;
+            font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.2);
+            pointer-events:auto;
+        }
     </style>
 </head>
-
 <body>
 
 <header class="topbar">
@@ -78,6 +95,8 @@
     </div>
 </header>
 
+<div id="notificationBar"></div>
+
 <aside class="sidebar">
     <h2>VanishChat</h2>
     <a href="#" class="active" onclick="showPage('dashboard', event)">Dashboard</a>
@@ -87,7 +106,6 @@
 </aside>
 
 <main>
-    <!-- DASHBOARD -->
     <section id="dashboard">
         <h1>Welcome, <span id="welcomeUser"></span> 👋</h1>
         <table>
@@ -104,7 +122,6 @@
         </table>
     </section>
 
-    <!-- CHAT -->
     <section id="chat" style="display:none;">
         <h1>Chat</h1>
         <input type="email" id="chatEmail" placeholder="Enter email to chat">
@@ -118,19 +135,15 @@
         <button id="sendBtn">Send</button>
     </section>
 
-    <!-- PROFILE -->
     <section id="profile" style="display:none;">
         <h1>Edit Profile</h1>
-
         <form id="profileForm">
-            <!-- Profile pic preview -->
-            <img id="profilePicPreview" src="https://via.placeholder.com/80" style="display:block;margin-bottom:10px;">
-            <input type="file" id="profilePic" accept="image/*">
+            <img id="profilePicPreview" src="https://via.placeholder.com/80">
+            <input type="file" id="profilePic" accept="image/*" onchange="previewImage(this,'profilePicPreview')">
 
             <input type="text" id="proUsername" placeholder="Username">
             <input type="email" id="proEmail" placeholder="Email" readonly>
 
-            <!-- Password field with toggle -->
             <div style="position:relative;">
                 <input type="password" id="proPassword" placeholder="Password">
                 <span onclick="togglePassword()" style="position:absolute;right:10px;top:10px;cursor:pointer;">👁️</span>
@@ -138,13 +151,15 @@
 
             <input type="text" id="proPhone" placeholder="Phone">
             <textarea id="proAddress" placeholder="Address"></textarea>
-
             <input type="text" id="proBusinessName" placeholder="Business Name">
             <input type="text" id="proGstNumber" placeholder="GST Number">
 
-            <label>Business Proof File</label>
+            <label>Existing Business Proof</label>
             <input type="text" id="proProofFilePath" placeholder="Existing file" readonly>
-            <input type="file" id="newBusinessProof">
+            <img id="businessProofPreview" src="" style="display:none;">
+
+            <label>Upload New Business Proof</label>
+            <input type="file" id="newBusinessProof" onchange="previewImage(this,'businessProofPreview')">
 
             <button type="button" onclick="saveProfile()">Save</button>
         </form>
@@ -156,14 +171,17 @@
 <script>
     const API = "http://localhost:8080";
     let loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
-    if(!loggedUser){ alert("Please login first!"); window.location.href="/login"; }
+    let token = localStorage.getItem("token");
 
-    // TOPBAR + WELCOME
+    if(!loggedUser || !token){
+        alert("Please login first!");
+        window.location.href="/login";
+    }
+
     document.getElementById("topName").textContent = loggedUser.username;
     document.getElementById("topPic").src = loggedUser.profilePic || "https://via.placeholder.com/40";
     document.getElementById("welcomeUser").textContent = loggedUser.username;
 
-    // Sidebar toggle
     function toggleSidebar(){ document.querySelector(".sidebar").classList.toggle("active"); }
     function logout(){ localStorage.removeItem("loggedUser"); localStorage.removeItem("token"); window.location.href="/login"; }
     function showPage(page,event){
@@ -174,20 +192,20 @@
         event.target.classList.add("active");
     }
 
-    // Load dashboard
+    // ===================== DASHBOARD =====================
     async function loadDashboard() {
         const tbody = document.getElementById("userList");
         tbody.innerHTML = "";
 
-        tbody.innerHTML += `<tr>
-            <td>${loggedUser.username}</td>
-            <td>${loggedUser.email}</td>
-            <td>${loggedUser.phone || "-"}</td>
-            <td>${loggedUser.address || "-"}</td>
-            <td>-</td>
-        </tr>`;
-
         try {
+            tbody.innerHTML += `<tr style="background:#dff0d8;">
+                <td>${loggedUser.username}</td>
+                <td>${loggedUser.email}</td>
+                <td>${loggedUser.phone || "-"}</td>
+                <td>${loggedUser.address || "-"}</td>
+                <td>-</td>
+            </tr>`;
+
             const res = await fetch(`${API}/users`);
             const users = await res.json();
             users.forEach(u => {
@@ -197,7 +215,7 @@
                         <td>${u.email}</td>
                         <td>${u.phone || "-"}</td>
                         <td>${u.address || "-"}</td>
-                        <td>-</td>
+                        <td id="pending-${u.email}">${u.pendingChats || 0}</td>
                     </tr>`;
                 }
             });
@@ -206,109 +224,179 @@
         loadProfileFields();
     }
 
-    // Load profile fields
+    // ===================== PROFILE =====================
     function loadProfileFields(){
         document.getElementById("proUsername").value = loggedUser.username;
         document.getElementById("proEmail").value = loggedUser.email;
-        document.getElementById("proPassword").value = ""; // blank for security
+        document.getElementById("proPassword").value = "";
         document.getElementById("proPhone").value = loggedUser.phone || "";
         document.getElementById("proAddress").value = loggedUser.address || "";
         document.getElementById("profilePicPreview").src = loggedUser.profilePic || "https://via.placeholder.com/80";
         document.getElementById("proBusinessName").value = loggedUser.businessName || "";
         document.getElementById("proGstNumber").value = loggedUser.gstNumber || "";
         document.getElementById("proProofFilePath").value = loggedUser.proofFilePath || "";
+        if(loggedUser.proofFilePath) {
+            document.getElementById("businessProofPreview").src = loggedUser.proofFilePath;
+            document.getElementById("businessProofPreview").style.display = "block";
+        }
     }
 
-    // Toggle password visibility
     function togglePassword(){
         const pass = document.getElementById("proPassword");
         pass.type = pass.type === "password" ? "text" : "password";
     }
 
-    // Save profile
-    async function saveProfile() {
-        const profilePicFile = document.getElementById("profilePic").files[0];
-        const proofFile = document.getElementById("newBusinessProof").files[0];
-
-        let formData = new FormData();
-        formData.append("username", document.getElementById("proUsername").value);
-        formData.append("email", document.getElementById("proEmail").value);
-        formData.append("password", document.getElementById("proPassword").value);
-        formData.append("phone", document.getElementById("proPhone").value);
-        formData.append("address", document.getElementById("proAddress").value);
-        formData.append("businessName", document.getElementById("proBusinessName").value);
-        formData.append("gstNumber", document.getElementById("proGstNumber").value);
-        if(profilePicFile) formData.append("profilePic", profilePicFile);
-        if(proofFile) formData.append("businessProof", proofFile);
-
-        try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${API}/api/profile`, {
-                method: "PUT",
-                headers: { "Authorization": `Bearer ${token}` },
-                body: formData
-            });
-            const data = await res.json();
-            if(data.success){
-                alert("Profile updated!");
-                localStorage.setItem("loggedUser", JSON.stringify(data.user));
-                loggedUser = data.user;
-                loadDashboard();
-            } else {
-                alert("Update failed: "+data.message);
+    function previewImage(input, previewId){
+        const file = input.files[0];
+        if(file){
+            const reader = new FileReader();
+            reader.onload = function(e){
+                const img = document.getElementById(previewId);
+                img.src = e.target.result;
+                img.style.display = "block";
             }
-        } catch(e){
-            console.error(e);
-            alert("Error updating profile");
+            reader.readAsDataURL(file);
         }
     }
 
-    // ====================== CHAT ======================
-    let socket = new SockJS(`${API}/ws`);
-    let stompClient = Stomp.over(socket);
-    stompClient.connect({}, ()=>{
-        console.log("Connected to WebSocket");
+    async function saveProfile() {
+    const profilePicFile = document.getElementById("profilePic").files[0];
+    const proofFile = document.getElementById("newBusinessProof").files[0];
 
-        stompClient.subscribe("/chat/"+loggedUser.email, msg=>{
-            const data = JSON.parse(msg.body);
-            addMessage(data, false);
+    let formData = new FormData();
+    formData.append("username", document.getElementById("proUsername").value);
+    formData.append("email", document.getElementById("proEmail").value);
+    formData.append("password", document.getElementById("proPassword").value);
+    formData.append("phone", document.getElementById("proPhone").value);
+    formData.append("address", document.getElementById("proAddress").value);
+    formData.append("businessName", document.getElementById("proBusinessName").value);
+    formData.append("gstNumber", document.getElementById("proGstNumber").value);
+
+    // Only append files if user uploaded new ones
+    if(profilePicFile) formData.append("profilePic", profilePicFile);
+    if(proofFile) formData.append("businessProof", proofFile);
+
+    try {
+        const res = await fetch(`${API}/api/profile`, {
+            method: "PUT", // ya POST agar pehli baar create kar rahe ho
+            headers: { "Authorization": `Bearer ${token}` },
+            body: formData
         });
 
-        stompClient.subscribe("/notify/"+loggedUser.email, msg=>{
+        const data = await res.json();
+
+        if(data.success && data.user){
+            alert("Profile saved successfully!");
+
+            // Update loggedUser in localStorage
+            loggedUser = data.user;
+            localStorage.setItem("loggedUser", JSON.stringify(loggedUser));
+
+            // Reload profile fields so preview updates
+            loadProfileFields();
+        } else {
+            alert("Error: " + (data.message || "Could not save profile"));
+        }
+
+    } catch(e){
+        console.error("Error saving profile:", e);
+        alert("Something went wrong while saving profile!");
+    }
+}
+
+    // ===================== WEBSOCKET =====================
+    function encodeEmail(email) {
+        return email.replace(/\./g, "_dot_").replace(/@/g, "_at_");
+    }
+
+    let socket = new SockJS(`${API}/ws`);
+    let stompClient = Stomp.over(socket);
+
+    stompClient.connect({ Authorization: `Bearer ${token}` }, () => {
+        console.log("Connected to WebSocket");
+
+        // Subscribe to personal chat
+        stompClient.subscribe("/chat/" + encodeEmail(loggedUser.email), msg => {
+            const data = JSON.parse(msg.body);
+            addMessage(data, data.sender===loggedUser.email ? true : false);
+
+            // Show notification
+            showNotification("New message from " + data.sender);
+
+            // Update pending chat count
+            const pendingTd = document.getElementById("pending-" + data.sender);
+            if(pendingTd){
+                pendingTd.textContent = parseInt(pendingTd.textContent || "0") + 1;
+            } else { loadDashboard(); }
+
+            // Remove message after vanishTime
+            setTimeout(() => removeMessage(data.id), data.vanishTime * 1000);
+        });
+
+        // Notification channel
+        stompClient.subscribe("/notify/" + encodeEmail(loggedUser.email), msg => {
             showNotification(msg.body);
         });
     });
 
-    document.getElementById("sendBtn").addEventListener("click", ()=>{
-        const receiver = document.getElementById("chatEmail").value;
+    // Send message
+    document.getElementById("sendBtn").addEventListener("click", () => {
+        const chatEmail = document.getElementById("chatEmail").value;
         const message = document.getElementById("msgInput").value;
-        if(!receiver || !message) return;
+        const vanishTime = parseInt(document.getElementById("vanishTime").value);
 
-        const msg = { sender: loggedUser.email, receiver, message };
+        if (!chatEmail || !message) { alert("Enter email and message"); return; }
+
+        const msg = {
+            id: Date.now(),
+            sender: loggedUser.email,
+            receiver: chatEmail,
+            receiverSafe: encodeEmail(chatEmail),
+            message,
+            vanishTime
+        };
+
         stompClient.send("/app/send", {}, JSON.stringify(msg));
         addMessage(msg, true);
         document.getElementById("msgInput").value = "";
+        setTimeout(() => removeMessage(msg.id), vanishTime * 1000);
     });
 
-    function addMessage(msg, isMine){
+    // Add message to chat box
+    function addMessage(msg, isMine) {
         const box = document.getElementById("chatBox");
         const div = document.createElement("div");
-        div.classList.add("msg", isMine?"me":"other");
-        div.innerHTML = `${msg.message}<div class="time">${new Date().toLocaleTimeString()}</div>`;
+        div.classList.add("msg", isMine ? "me" : "other");
+        div.id = "msg-" + msg.id;
+        div.innerHTML = `<strong>${isMine ? "Me" : msg.sender}:</strong> ${msg.message}
+            <div class="time">${new Date().toLocaleTimeString()}</div>`;
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
     }
 
-    function showNotification(txt){
-        const note = document.createElement("div");
-        note.style.background="#00ffaa"; note.style.padding="10px";
-        note.style.margin="10px 0"; note.style.borderRadius="6px"; note.innerText=txt;
-        document.body.appendChild(note);
-        setTimeout(()=>{ note.remove(); },4000);
+    function removeMessage(id) {
+        const el = document.getElementById("msg-" + id);
+        if (el) el.remove();
     }
 
-    // Initial load
+    // Notifications
+    function showNotification(txt) {
+        const note = document.createElement("div");
+        note.classList.add("notification");
+        note.innerText = txt;
+        document.getElementById("notificationBar").appendChild(note);
+        setTimeout(() => note.remove(), 4000);
+    }
+
+    // Reset pending count when user opens chat with someone
+    document.getElementById("chatEmail").addEventListener("input", () => {
+        const email = document.getElementById("chatEmail").value;
+        const td = document.getElementById("pending-" + email);
+        if(td) td.textContent = "0";
+    });
+
     loadDashboard();
 </script>
+
 </body>
 </html>

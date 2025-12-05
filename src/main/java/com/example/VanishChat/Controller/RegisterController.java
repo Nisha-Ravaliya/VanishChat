@@ -3,6 +3,7 @@ package com.example.VanishChat.Controller;
 import com.example.VanishChat.Model.Registration;
 import com.example.VanishChat.Repository.RegistrationRepository;
 import com.example.VanishChat.JWToolkit.JwtUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,8 +42,9 @@ public class RegisterController {
             @RequestParam("businessName") String businessName,
             @RequestParam("gstNumber") String gstNumber,
             @RequestParam("address") String address,
-            @RequestParam(value = "businessProof", required = false) MultipartFile businessProof) {
-
+            @RequestParam(value = "businessProof", required = false) MultipartFile businessProof,
+            @RequestParam(value = "profilePic", required = false) MultipartFile profilePic
+    ) {
         try {
             Optional<Registration> existingUser = repository.findByUsernameOrEmail(username, email);
             Registration user;
@@ -59,10 +61,19 @@ public class RegisterController {
                 user.setGstNumber(gstNumber);
                 user.setAddress(address);
 
+                // Profile Pic upload
+                if (profilePic != null && !profilePic.isEmpty()) {
+                    File uploadFolder = new File(UPLOAD_DIR);
+                    if (!uploadFolder.exists()) uploadFolder.mkdirs();
+                    String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + profilePic.getOriginalFilename();
+                    profilePic.transferTo(new File(filePath));
+                    user.setProfilePic(filePath);
+                }
+
+                // Business Proof upload
                 if (businessProof != null && !businessProof.isEmpty()) {
                     File uploadFolder = new File(UPLOAD_DIR);
                     if (!uploadFolder.exists()) uploadFolder.mkdirs();
-
                     String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + businessProof.getOriginalFilename();
                     businessProof.transferTo(new File(filePath));
                     user.setProofFilePath(filePath);
@@ -113,18 +124,7 @@ public class RegisterController {
             }
 
             Registration user = userOpt.get();
-            return ResponseEntity.ok(Map.of(
-                    "id", user.getId(),
-                    "username", user.getUsername(),
-                    "email", user.getEmail(),
-                    "password", user.getPassword(), // hashed password returned
-                    "phone", user.getPhone(),
-                    "businessName", user.getBusinessName(),
-                    "gstNumber", user.getGstNumber(),
-                    "address", user.getAddress(),
-                    "profilePic", user.getProfilePic(),
-                    "proofFilePath", user.getProofFilePath()
-            ));
+            return ResponseEntity.ok(user);
 
         } catch (ExpiredJwtException e) {
             return ResponseEntity.status(401).body(Map.of("message", "Session expired. Please login again."));
@@ -133,6 +133,7 @@ public class RegisterController {
         }
     }
 
+    // ---------------- UPDATE PROFILE ----------------
     // ---------------- UPDATE PROFILE ----------------
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(
@@ -144,7 +145,9 @@ public class RegisterController {
             @RequestParam("gstNumber") String gstNumber,
             @RequestParam("address") String address,
             @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "businessProof", required = false) MultipartFile businessProof) {
+            @RequestParam(value = "profilePic", required = false) MultipartFile profilePic,
+            @RequestParam(value = "businessProof", required = false) MultipartFile businessProof
+    ) {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of("success", false, "message", "Missing token"));
@@ -161,6 +164,20 @@ public class RegisterController {
             }
 
             Registration user = userOpt.get();
+
+            // Check duplicate username
+            Optional<Registration> userWithSameUsername = repository.findByUsername(username);
+            if (userWithSameUsername.isPresent() && !userWithSameUsername.get().getId().equals(user.getId())) {
+                return ResponseEntity.status(400).body(Map.of("success", false, "message", "Username already taken"));
+            }
+
+            // Check duplicate email
+            Optional<Registration> userWithSameEmail = repository.findByEmail(email);
+            if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getId().equals(user.getId())) {
+                return ResponseEntity.status(400).body(Map.of("success", false, "message", "Email already in use"));
+            }
+
+            // Update fields
             user.setUsername(username);
             user.setEmail(email);
             user.setPhone(phone);
@@ -172,16 +189,25 @@ public class RegisterController {
                 user.setPassword(passwordEncoder.encode(password));
             }
 
+            // Profile pic update
+            if (profilePic != null && !profilePic.isEmpty()) {
+                File uploadFolder = new File(UPLOAD_DIR);
+                if (!uploadFolder.exists()) uploadFolder.mkdirs();
+                String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + profilePic.getOriginalFilename();
+                profilePic.transferTo(new File(filePath));
+                user.setProfilePic(filePath);
+            }
+
+            // Business proof update
             if (businessProof != null && !businessProof.isEmpty()) {
                 File uploadFolder = new File(UPLOAD_DIR);
                 if (!uploadFolder.exists()) uploadFolder.mkdirs();
-
                 String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + businessProof.getOriginalFilename();
                 businessProof.transferTo(new File(filePath));
                 user.setProofFilePath(filePath);
             }
 
-            repository.save(user); // could throw DataIntegrityViolationException if email/username duplicate
+            repository.save(user);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -190,7 +216,7 @@ public class RegisterController {
             ));
 
         } catch (Exception e) {
-            e.printStackTrace(); // 🔥 print full exception for debugging
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("success", false, "message", "Error: " + e.getMessage()));
         }
     }

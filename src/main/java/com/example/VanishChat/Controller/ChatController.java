@@ -3,50 +3,36 @@ package com.example.VanishChat.Controller;
 import com.example.VanishChat.Model.ChatMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
-import java.util.*;
+import org.springframework.stereotype.Controller;
 
-@RestController
+@Controller
 public class ChatController {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate template;
 
-    // In-memory chat storage (can move to DB later)
-    private final Map<String, List<ChatMessage>> chats = new HashMap<>();
+    public ChatController(SimpMessagingTemplate template) {
+        this.template = template;
+    }
 
-    public ChatController(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
+    // Email को safe channel format में बदलने वाला method
+    private String encodeEmail(String email) {
+        return email.replace(".", "_dot_").replace("@", "_at_");
     }
 
     @MessageMapping("/send")
     public void sendMessage(ChatMessage msg) {
 
-        msg.setTimestamp(System.currentTimeMillis());
+        // Receiver का सुरक्षित channel
+        String safeReceiver = encodeEmail(msg.getReceiver());
 
-        // Store chat
-        String key = msg.getSender() + "_" + msg.getReceiver();
-        chats.putIfAbsent(key, new ArrayList<>());
-        chats.get(key).add(msg);
+        // sender का safe email भी चाहिए notification के लिए
+        String safeSender = encodeEmail(msg.getSender());
 
-        // Send message to receiver live
-        messagingTemplate.convertAndSend("/chat/" + msg.getReceiver(), msg);
+        // MESSAGE भेजो
+        template.convertAndSend("/chat/" + safeReceiver, msg);
 
-        // Send notification to receiver dashboard
-        messagingTemplate.convertAndSend("/notify/" + msg.getReceiver(),
-                msg.getSender() + " sent a message");
-    }
-
-    // Fetch chat history
-    @GetMapping("/chat/history/{u1}/{u2}")
-    public List<ChatMessage> getChatHistory(@PathVariable String u1, @PathVariable String u2) {
-        List<ChatMessage> data = new ArrayList<>();
-        String k1 = u1 + "_" + u2;
-        String k2 = u2 + "_" + u1;
-
-        if (chats.containsKey(k1)) data.addAll(chats.get(k1));
-        if (chats.containsKey(k2)) data.addAll(chats.get(k2));
-
-        data.sort(Comparator.comparing(ChatMessage::getTimestamp));
-        return data;
+        // NOTIFICATION भेजो
+        template.convertAndSend("/notify/" + safeReceiver,
+                "New message from " + msg.getSender());
     }
 }
